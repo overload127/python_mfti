@@ -15,27 +15,49 @@ def new_ball():
     """
     global circle_x, circle_y, circle_r
     global move_x, move_y
+    global circle_id
     canv.delete(tk.ALL)
     circle_x = rnd(100, 700)
     circle_y = rnd(100, 500)
     circle_r = rnd(30, 50)
     move_x = rnd(1, 50)
-    move_y =rnd(1, 50)
-    canv.create_oval(circle_x-circle_r, circle_y-circle_r,
-                     circle_x+circle_r, circle_y+circle_r,
-                     fill=choice(colors), width=0)
+    move_y = rnd(1, 50)
+    circle_id = canv.create_oval(
+        circle_x-circle_r, circle_y-circle_r,
+        circle_x+circle_r, circle_y+circle_r,
+        fill=choice(colors), width=0)
     root.after(1000, new_ball)
 
 
 def move_ball():
+    """
+    Выполняет движение шара
+    """
     global circle_x, circle_y, circle_r
     global move_x, move_y
-    
+    global circle_id
+
     circle_x += move_x
     circle_y += move_y
 
-    if circle_x >= window_width or circle_x < 0:
-        pass
+    if circle_x + circle_r >= window_width:
+        circle_x = circle_x - (circle_x + circle_r - window_width)
+        move_x *= -1
+    elif circle_x - circle_r <= 0:
+        circle_x = circle_x - (circle_x + circle_r - window_width)
+        move_x *= -1
+
+    if circle_y + circle_r >= window_heigth:
+        circle_y = circle_y - (circle_y + circle_r - window_heigth)
+        move_y *= -1
+    elif circle_y - circle_r <= 0:
+        circle_y = circle_y - (circle_y + circle_r - window_heigth)
+        move_y *= -1
+
+    canv.coords(circle_id, circle_x-circle_r, circle_y-circle_r,
+                circle_x + circle_r, circle_y + circle_r)
+
+    root.after(100, move_ball)
 
 
 def click(event):
@@ -59,8 +81,8 @@ def click(event):
 # основной текст программы
 # -----------------------------------------------------------------------
 # размеры экрана
-window_width = 600
-window_heigth = 800
+window_width = 800
+window_heigth = 600
 # Список цветов.
 # Используется для случайного задания  цвета шару
 colors = ['red', 'orange', 'yellow', 'green', 'blue']
@@ -87,6 +109,7 @@ canv.bind('<Button-1>', click)
 # далее функция сама себя перевызывает раз в секунду
 new_ball()
 # первый вызов движения шара.
+move_ball()
 # далее функция сама себя перевызывает несколько раз в секунду
 root.after(100, move_ball)
 
